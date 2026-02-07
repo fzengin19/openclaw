@@ -31,6 +31,14 @@ RUN pnpm ui:build
 
 ENV NODE_ENV=production
 
+# Make CLI executable and accessible globally
+RUN chmod +x /app/openclaw.mjs \
+    && ln -sf /app/openclaw.mjs /usr/local/bin/openclaw
+
+# Ensure runtime directories exist with correct permissions (for Coolify/PaaS compatibility)
+RUN mkdir -p /home/node/.openclaw \
+    && chown -R node:node /home/node/.openclaw
+
 # Allow non-root user to write temp files during runtime/tests.
 RUN chown -R node:node /app
 
@@ -45,4 +53,4 @@ USER node
 # For container platforms requiring external health checks:
 #   1. Set OPENCLAW_GATEWAY_TOKEN or OPENCLAW_GATEWAY_PASSWORD env var
 #   2. Override CMD: ["node","openclaw.mjs","gateway","--allow-unconfigured","--bind","lan"]
-CMD ["node", "openclaw.mjs", "gateway", "--allow-unconfigured"]
+CMD ["openclaw", "gateway", "--allow-unconfigured"]
